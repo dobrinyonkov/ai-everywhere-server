@@ -32,11 +32,11 @@ app.get("/api/ask", async (req, res) => {
 
     const chunks = [];
     for await (const chunk of stream) {
-      chunks.push(chunk);
+      res.write(chunk);
     }
 
-    const answer = chunks.join("");
-    res.json({ answer });
+    res.end();
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -46,5 +46,3 @@ app.get("/api/ask", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
-
-// 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

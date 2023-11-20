@@ -148,14 +148,14 @@
             `justify-${this.sender === "user" ? "end" : "start"}`
           );
           messageContainer.innerHTML = `
-            <div class="relative max-w-xl px-4 py-2 text-gray-700 ${
-              this.sender === "user"
-                ? "bg-blue-500 text-white rounded-r"
-                : "bg-gray-100 rounded-l shadow"
-            }">
-              <span class="block">${this.content}</span>
-            </div>
-          `;
+                  <div class="relative max-w-xl px-4 py-2 text-gray-700 ${
+                    this.sender === "user"
+                      ? "bg-blue-500 text-white rounded-r"
+                      : "bg-gray-100 rounded-l shadow"
+                  }">
+                    <span class="block">${this.content}</span>
+                  </div>
+                `;
           return messageContainer;
         }
       }
@@ -207,17 +207,45 @@
             const response = await fetch(
               `/api/ask?question=${encodeURIComponent(userMessage)}`
             );
-            const result = await response.json();
 
-            if (response.ok) {
-              const aiResponse = result.answer;
-              this.appendMessage(new Message("ai", aiResponse));
-            } else {
-              console.error(result.error || "Server error");
+            const reader = response.body.getReader();
+            let chunks = [];
+
+            while (true) {
+              const { done, value } = await reader.read();
+
+              if (done) {
+                break;
+              }
+
+              // Convert Uint8Array to string and append to chunks array
+              chunks.push(new TextDecoder().decode(value));
+
+              // Display chunks one by one
+              const aiResponse = chunks.join("");
+              this.updateLastAiMessage(aiResponse);
             }
           } catch (error) {
             console.error("Failed to communicate with the server", error);
           }
+        }
+
+        updateLastAiMessage(aiResponse) {
+          // Find the last AI message in the chatMessages
+          const lastAiMessage = this.chatMessages.querySelector(
+            ".message-box.justify-start:last-child"
+          );
+
+          if (lastAiMessage) {
+            // Update the content of the last AI message
+            lastAiMessage.querySelector("span").innerText = aiResponse;
+          } else {
+            // If no last AI message is found, append a new AI message
+            this.appendMessage(new Message("ai", aiResponse));
+          }
+
+          // Scroll to the bottom after updating the message
+          this.scrollToBottom();
         }
 
         appendMessage(message) {
