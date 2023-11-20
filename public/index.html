@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Idea Validation Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      .message-box {
+        flex-direction: column;
+        gap: 0.5rem;
+        display: grid;
+      }
+    </style>
+  </head>
+
+  <body class="flex items-center justify-center h-screen bg-gray-100">
+    <div
+      class="max-w-2xl w-full border rounded flex flex-col h-full 2xl:h-[60rem]"
+    >
+      <div class="relative flex items-center p-3 border-b border-gray-300">
+        <!-- Change the image source to your product logo -->
+        <img
+          class="object-cover w-10 h-10 rounded-full"
+          src="https://example.com/your-product-logo.png"
+          alt="product-logo"
+        />
+        <span class="block ml-2 font-bold text-gray-600">AI Bot</span>
+        <span
+          class="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3"
+        ></span>
+      </div>
+      <div class="relative w-full p-6 overflow-y-auto grow">
+        <!-- Chat messages will be dynamically generated here -->
+        <ul class="space-y-2" id="chatMessages">
+          <!-- Initial AI greeting message -->
+          <li class="flex justify-start">
+            <div
+              class="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow bg-gray-100"
+            >
+              <span class="block"
+                >${"Hello! I'm here to help you validate your idea. Please tell
+                me about it."}</span
+              >
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div
+        class="flex items-center justify-between w-full p-3 border-t border-gray-300"
+      >
+        <!-- Add functionality to these buttons as needed -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-6 h-6 text-gray-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <!-- Add client icon here -->
+        </svg>
+
+        <input
+          type="text"
+          placeholder="Type your message..."
+          class="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"
+          id="userMessageInput"
+        />
+        <!-- Add functionality to these buttons as needed -->
+        <button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5 text-gray-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <!-- Add button icon here -->
+          </svg>
+        </button>
+        <button type="button" id="sendMessageButton">
+          <svg
+            class="w-5 h-5 text-gray-500 origin-center transform rotate-90"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Image preview modal -->
+    <div
+      id="imagePreviewModal"
+      class="fixed inset-0 z-50 hidden overflow-auto bg-gray-800 bg-opacity-75"
+    >
+      <div class="flex items-center justify-center h-screen">
+        <div
+          class="relative max-w-2xl p-4 overflow-hidden bg-white rounded shadow-lg"
+        >
+          <img
+            id="previewedImage"
+            class="w-full h-auto"
+            src=""
+            alt="Image Preview"
+          />
+          <button
+            onclick="closeImagePreview"
+            class="absolute top-0 right-0 m-4 text-white"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      class Message {
+        constructor(sender, content) {
+          this.sender = sender;
+          this.content = content;
+        }
+
+        render() {
+          const messageContainer = document.createElement("li");
+          messageContainer.classList.add(
+            "message-box",
+            `justify-${this.sender === "user" ? "end" : "start"}`
+          );
+          messageContainer.innerHTML = `
+            <div class="relative max-w-xl px-4 py-2 text-gray-700 ${
+              this.sender === "user"
+                ? "bg-blue-500 text-white rounded-r"
+                : "bg-gray-100 rounded-l shadow"
+            }">
+              <span class="block">${this.content}</span>
+            </div>
+          `;
+          return messageContainer;
+        }
+      }
+
+      class ImageMessage extends Message {
+        constructor(sender, content, imageUrl) {
+          super(sender, content);
+          this.imageUrl = imageUrl;
+        }
+
+        render() {
+          const messageContainer = super.render();
+          const image = document.createElement("img");
+          image.src = this.imageUrl;
+          image.alt = "AI Image";
+          image.classList.add("cursor-pointer", "rounded", "shadow");
+          image.style.maxWidth = "150px";
+          image.style.maxHeight = "150px";
+          image.addEventListener("click", () =>
+            openImagePreview(this.imageUrl)
+          );
+          messageContainer.appendChild(image);
+          return messageContainer;
+        }
+      }
+
+      class ChatApp {
+        constructor() {
+          this.chatMessages = document.getElementById("chatMessages");
+          this.userMessageInput = document.getElementById("userMessageInput");
+          this.sendMessageButton = document.getElementById("sendMessageButton");
+
+          this.sendMessageButton.addEventListener("click", () =>
+            this.sendMessage()
+          );
+        }
+
+        async sendMessage() {
+          const userMessage = this.userMessageInput.value.trim();
+          if (userMessage !== "") {
+            this.appendMessage(new Message("user", userMessage));
+            await this.sendMessageToServer(userMessage);
+            this.userMessageInput.value = "";
+          }
+        }
+
+        async sendMessageToServer(userMessage) {
+          try {
+            const response = await fetch(
+              `/api/ask?question=${encodeURIComponent(userMessage)}`
+            );
+            const result = await response.json();
+
+            if (response.ok) {
+              const aiResponse = result.answer;
+              this.appendMessage(new Message("ai", aiResponse));
+            } else {
+              console.error(result.error || "Server error");
+            }
+          } catch (error) {
+            console.error("Failed to communicate with the server", error);
+          }
+        }
+
+        appendMessage(message) {
+          this.chatMessages.appendChild(message.render());
+          this.scrollToBottom();
+        }
+
+        scrollToBottom() {
+          this.chatMessages.parentElement.scrollTop =
+            this.chatMessages.parentElement.scrollHeight;
+        }
+      }
+
+      function openImagePreview(imageUrl) {
+        const imagePreviewModal = document.getElementById("imagePreviewModal");
+        const previewedImage = document.getElementById("previewedImage");
+
+        previewedImage.src = imageUrl;
+        imagePreviewModal.classList.remove("hidden");
+      }
+
+      function closeImagePreview() {
+        const imagePreviewModal = document.getElementById("imagePreviewModal");
+        const previewedImage = document.getElementById("previewedImage");
+
+        previewedImage.src = "";
+        imagePreviewModal.classList.add("hidden");
+      }
+
+      // Initialize the chat app
+      const chatApp = new ChatApp();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  # Node.js App
+  node-app:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - /usr/src/app
+    depends_on:
+      - ollama
+
+  # Ollama Service
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    container_name: ollama
+
+volumes:
+  ollama:
