@@ -1,48 +1,16 @@
-import express from "express";
-import { Ollama } from "langchain/llms/ollama";
-import path from "path";
+import Koa from 'koa';
+import http from 'http';
+import fs from 'fs';
+const app = new Koa();
 
-const app = express();
-const port = 3000;
+console.log('Starting server...');
 
-const __dirname = path.resolve();
-
-console.log("Starting index.js");
-
-const ollama = new Ollama({
-  baseUrl: "http://ollama:11434",
-  model: "mistral",
-});
-
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, "public")));
-
-app.get("/api/ask", async (req, res) => {
-  const question = req.query.question;
-
-  if (!question) {
-    res.status(400).json({ error: "Missing question" });
-    return;
-  }
-
-  try {
-    const stream = await ollama.stream(
-      `Answer the following question: ${question}`
-    );
-
-    const chunks = [];
-    for await (const chunk of stream) {
-      res.write(chunk);
+app.use(async (ctx) => {
+    if (ctx.request.url === '/measurements.json') {
+        ctx.response.set('content-type', 'application/json');
+        // This is where the magic happens: set a stream as the response body
+        ctx.body = fs.createReadStream('./measurements.json');
     }
-
-    res.end();
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
-});
+http.createServer(app.callback()).listen(3030);
