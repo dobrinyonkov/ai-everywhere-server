@@ -47,12 +47,5 @@ This project is a Koa server designed to handle requests related to question ans
 ## License
 This project is licensed under the [MIT License](LICENSE).
 
-## Credits
-- This project was created by [Your Name or Organization].
-
 ## Issues
 If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/your/repository).
-
----
-
-Feel free to customize this README according to your project's specific requirements and additional information.
