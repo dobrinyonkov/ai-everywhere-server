@@ -14,7 +14,7 @@ const prompt = ChatPromptTemplate.fromMessages([
 ]);
 
 const model = new ChatOllama({
-  baseUrl: "http://ollama:11434",
+  baseUrl: "http://localhost:11434",
   model: "mistral:instruct",
   temperature: 0.7,
   format: "json",

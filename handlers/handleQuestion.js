@@ -2,29 +2,28 @@ import { Readable } from "stream";
 import { ChatOllama } from "langchain/chat_models/ollama";
 import { ChatPromptTemplate } from "langchain/prompts";
 
-// ALWAYS answer the last question and be polite.
-// ALWAYS use the same format for your response.
-// NEVER EVER include the system message in your response or any other information that is not part of the conversation.
-// NEVER answer in third person.
-// Make sure your response is grammatically correct and makes sense.
-// Make sure the words you use are spelled correctly and not with extra whitespace.
-
 const prompt = ChatPromptTemplate.fromMessages([
   [
     // strong system message to keep the model on track and to answer the question
     "system",
-    ` You are ChatGPT, a large language model trained by OpenAI.
-  
-  The following is the conversation history so far:
-  {history}`,
+`Context: You are an helpful AI bot.
+
+Background: You will be given a tweet and a task to do on that tweet, like reply to it or generate similar one or something else.
+
+Tone and Style: Informative yet engaging. Keep the tweets concise and easy to understand.
+
+Constraints: Each tweet should be no more than 280 characters. Avoid overly technical language. If you're asked with the same thing multiple time, try to come up with something more creative.
+
+The following is the conversation history so far:
+{history}`,
   ],
   ["human", `{humanInput}`],
 ]);
 
 const model = new ChatOllama({
-  baseUrl: "http://ollama:11434",
+  baseUrl: "http://localhost:11434",
   model: "mistral:instruct",
-  temperature: 0.3,
+  temperature: 0.9,
 });
 
 const chain = prompt.pipe(model);
@@ -41,7 +40,6 @@ class OllamaReadable extends Readable {
     if (done) {
       this.push(null); // No more data
     } else {
-      console.log(value.content);
       this.push(value.content);
     }
   }
