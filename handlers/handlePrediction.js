@@ -3,7 +3,6 @@ import { ChatPromptTemplate } from "langchain/prompts";
 
 const prompt = ChatPromptTemplate.fromMessages([
   [
-    // strong system message to keep the model on track and to answer the question
     "system",
     ` You are ChatGPT, a large language model trained by OpenAI.
   
@@ -42,10 +41,7 @@ Answer just with an array in the following format:
     history,
   });
 
-  // Set the content type
   ctx.response.set("content-type", "application/json");
-
-  // Set the custom readable stream as the response body
   ctx.body = {
     predictions: ollamaResult.content,
   };

@@ -4,7 +4,6 @@ import { ChatPromptTemplate } from "langchain/prompts";
 
 const prompt = ChatPromptTemplate.fromMessages([
   [
-    // strong system message to keep the model on track and to answer the question
     "system",
 `Context: You are an helpful AI bot.
 
@@ -60,13 +59,9 @@ const handleQuestion = async (ctx) => {
     history,
   });
 
-  // Use the custom readable stream
   const readableStream = new OllamaReadable(ollamaStream);
 
-  // Set the content type
   ctx.response.set("content-type", "application/json");
-
-  // Set the custom readable stream as the response body
   ctx.body = readableStream;
 };
 

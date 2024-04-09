@@ -11,6 +11,11 @@ This project is a Koa server designed to handle requests related to question ans
 ## Prerequisites
 - Node.js installed on the system.
 - Basic knowledge of JavaScript and web servers.
+- [Ollama](https://ollama.com/) ran on the local machine and [`mistral:instruct`](https://ollama.com/library/mistral:instruct) model installed.
+    - You can install the model using the following command:
+        ```
+        ollama run mistral:instruct
+        ```
 
 ## Installation
 1. Clone this repository to your local machine.
